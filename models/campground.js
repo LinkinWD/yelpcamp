@@ -16,7 +16,7 @@ const campgroundSchema = new Schema( {
 })
 //kun poistat campgroundin, poistaa myös arvostelut
 campgroundSchema.post('findOneAndDelete', async function (doc) {
-    //jos jotain deletoitiin
+    //jos jotain deletoitiin, niin poistetaan myös siihen liittyvät arvostelut
     if(doc){
         await Review.remove({
            _id: {
