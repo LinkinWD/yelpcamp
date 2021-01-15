@@ -5,6 +5,11 @@ const path = require('path')
 const mongoose = require('mongoose')
 //partials ja boilerplate---layout
 const ejsMate = require('ejs-mate')
+//sessions
+const session = require('express-session')
+const cookieParser = require('cookie-parser')
+//flash
+const flash = require('connect-flash')
 //oma express errori
 const ExpressError = require('./utilities/expressError')
 //tarvitaan että voidaan käyttää httpn kanssa PUT, DELETE ja muita ei supportoituja
@@ -41,6 +46,32 @@ app.use(express.urlencoded({ extended: true}))
 app.use(methodOverride('_method'))
 //käytetään public kansiota, missä on static tiedostot
 app.use(express.static(path.join(__dirname, 'public')))
+
+//session
+app.use(cookieParser())
+const sessionConfig = {
+    secret: 'huona',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        //date on millisekuntteina ja tossa on viikon millisekunnit
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        maxAge:   1000 * 60 * 60 * 24 * 7
+
+    }
+}
+app.use(session(sessionConfig))
+//use flash
+app.use(flash())
+
+//flash middleware flash success laukasee
+app.use((req, res, next) => {
+    //The res.locals property is an object that contains response local variables scoped to the request and because of this, it is only available to the view(s) rendered during that request/response cycle (if any).
+    res.locals.success = req.flash('success')
+    
+    next()
+})
+
 
 
 //käytetään reititintä, eli ovat erillisessä kansiossa ja niiden alkuun tulee tässä oleva alkuliite.
