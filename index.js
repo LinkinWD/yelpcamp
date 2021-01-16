@@ -16,10 +16,18 @@ const ExpressError = require('./utilities/expressError')
 const methodOverride = require('method-override')
 //käytetään mongopohjapiirustusten validointiin
 const Joi = require('joi')
+//passport
+const passport = require('passport')
+const LocalStradegy = require('passport-local')
+const User = require('./models/user')
+
+
+
 
 // router muuttujat, jotka exportataan toisesta kansiosta
-const campgrounds = require('./routes/campgrounds');
-const reviews = require('./routes/reviews');
+const campgroundsRoutes = require('./routes/campgrounds');
+const reviewsRoutes = require('./routes/reviews');
+const userRoutes = require('./routes/user')
 
 //yhdistetään tietokantaan
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
@@ -64,23 +72,35 @@ app.use(session(sessionConfig))
 //use flash
 app.use(flash())
 
+//pitää sijoittaa sessionin alle
+//kerrotaan passportille että halutaan käyttää localstrategyä joka löytyy userin takaa
+app.use(passport.initialize())
+app.use(passport.session())
+passport.use(new LocalStradegy(User.authenticate()))
+//sessiossa oleminen ja olemattomuus
+passport.serializeUser(User.serializeUser())
+passport.deserializeUser(User.deserializeUser())
+
 //flash middleware flash success laukasee
 app.use((req, res, next) => {
     //The res.locals property is an object that contains response local variables scoped to the request and because of this, it is only available to the view(s) rendered during that request/response cycle (if any).
     res.locals.success = req.flash('success')
     //middleware, muista next kaikissa sellasissa.
     res.locals.error = req.flash('error')
+    res.locals.currentUser = req.user
     next()
 })
 
 
 
 //käytetään reititintä, eli ovat erillisessä kansiossa ja niiden alkuun tulee tässä oleva alkuliite.
-app.use('/campgrounds', campgrounds)
-app.use('/campgrounds/:id/reviews', reviews)
+app.use('/campgrounds', campgroundsRoutes)
+app.use('/campgrounds/:id/reviews', reviewsRoutes)
+app.use('/', userRoutes)
 
 //turha etusivu
 app.get('/', (req, res) => {
+    
     res.render('home')
 })
 
