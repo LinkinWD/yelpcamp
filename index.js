@@ -50,7 +50,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 //session
 app.use(cookieParser())
 const sessionConfig = {
-    secret: 'huona',
+    secret: 'huonosalaisuus',
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -68,7 +68,8 @@ app.use(flash())
 app.use((req, res, next) => {
     //The res.locals property is an object that contains response local variables scoped to the request and because of this, it is only available to the view(s) rendered during that request/response cycle (if any).
     res.locals.success = req.flash('success')
-    
+    //middleware, muista next kaikissa sellasissa.
+    res.locals.error = req.flash('error')
     next()
 })
 
