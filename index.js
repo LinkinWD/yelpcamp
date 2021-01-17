@@ -83,7 +83,7 @@ passport.deserializeUser(User.deserializeUser())
 
 //flash middleware flash success laukasee
 app.use((req, res, next) => {
-    console.log(req.session)
+    /* console.log(req.session) */
     //The res.locals property is an object that contains response local variables scoped to the request and because of this, it is only available to the view(s) rendered during that request/response cycle (if any).
     res.locals.success = req.flash('success')
     //middleware, muista next kaikissa sellasissa.
