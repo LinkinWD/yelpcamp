@@ -1,26 +1,12 @@
-const express = require('express')
-//ottaa paramsit indexistä, että voidaan käyttää 'campgroundia'
-const router =express.Router( {mergeParams: true})
+const express = require('express');
+const router = express.Router({ mergeParams: true });
+const { validateReview, isLoggedIn, isReviewAuthor } = require('../middleware');
+const Campground = require('../models/campground');
+const Review = require('../models/rewiev');
+const ExpressError = require('../utilities/expressError');
+const catchAsync = require('../utilities/catchAsync');
 
 
-
-const {reviewSchema} = require('../schemas.js')
-const Campground = require('../models/campground')
-const Review = require('../models/rewiev')
-
-
-const catchAsync = require('../utilities/catchAsync')
-const ExpressError = require('../utilities/expressError')
-
-const validateReview = (req, res, next) => {
-    const { error } =reviewSchema.validate(req.body)
-    if(error) {
-        const msg = error.details.map(el => el.message).join(',')
-        throw new ExpressError(msg, 400)
-    } else {
-        next()
-    }
-}
 
 //arvostelut
 router.post('/', validateReview, catchAsync(async(req, res) => {
